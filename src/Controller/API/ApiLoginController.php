@@ -26,6 +26,10 @@ class ApiLoginController extends AbstractController
             $response->setContent(json_encode([
                 'message' => 'missing credentials',
             ]));
+            header("Content-Type: application/json");
+            header("Access-Control-Allow-Origin: *");
+            header("Access-Control-Allow-Methods: POST");
+            header("Access-Control-Allow-Headers: Content-Type, Authorization");
             $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
             $response->headers->set('Content-Type', 'application/json');
             $response->headers->set('Access-Control-Allow-Origin', '*');
@@ -33,7 +37,10 @@ class ApiLoginController extends AbstractController
             $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
             return $response;
         }
-
+        header("Content-Type: application/json");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: POST");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
         $response = new Response();
         $response->setContent(json_encode([
             'user' => $user->getId(),
