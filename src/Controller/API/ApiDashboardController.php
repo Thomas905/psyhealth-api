@@ -72,7 +72,7 @@ class ApiDashboardController extends AbstractController
         }
         $jwtPayload = json_decode($tokenPayload);
         $user = $this->userRepository->findBy(['username' => $jwtPayload->username]);
-        return $this->json($serializer->normalize($user, null, [
+        $response = $this->json($serializer->normalize($user, null, [
             AbstractNormalizer::ATTRIBUTES => [
                 'id',
                 'hasReplied',
@@ -86,6 +86,14 @@ class ApiDashboardController extends AbstractController
                 ]
             ],
         ]));
+
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'POST');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+        return $response;
     }
 
     #[Route('plans/question/reply', name: '_reply', methods: ['GET'])]
@@ -103,7 +111,7 @@ class ApiDashboardController extends AbstractController
         }
         $jwtPayload = json_decode($tokenPayload);
         $user = $this->userRepository->findAll();
-        return $this->json($serializer->normalize($user, null, [
+        $response = $this->json($serializer->normalize($user, null, [
             AbstractNormalizer::ATTRIBUTES => [
                 'id',
                 'hasReplied',
@@ -122,6 +130,14 @@ class ApiDashboardController extends AbstractController
                 ]
             ],
         ]));
+
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'POST');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+        return $response;
     }
 
     #[Route('/question/{id}/reply', name: '_reply_individualy', methods: ['POST'])]
@@ -149,11 +165,19 @@ class ApiDashboardController extends AbstractController
             $this->entityManager->flush();
         }
 
-        return $this->json($serializer->normalize($reply, null, [
+        $response = $this->json($serializer->normalize($reply, null, [
             AbstractNormalizer::ATTRIBUTES => [
                 'description'
             ],
         ]));
+
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'POST');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+        return $response;
     }
 
     #[Route('/room/questions', name: 'room_question', methods: ['GET'])]
@@ -172,7 +196,7 @@ class ApiDashboardController extends AbstractController
         $jwtPayload = json_decode($tokenPayload);
         $user = $this->userRepository->findOneBy(['username' => $jwtPayload->username]);
         $room = $this->roomRepository->findOneBy(['id' => $user->getRoom()->getId()]);
-        return $this->json($serializer->normalize($room, null, [
+        $response =  $this->json($serializer->normalize($room, null, [
             AbstractNormalizer::ATTRIBUTES => [
                 'id',
                 'name',
@@ -191,6 +215,14 @@ class ApiDashboardController extends AbstractController
                 ],
             ],
         ]));
+
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'POST');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+        return $response;
     }
 
     #[Route('/create-room', name: 'create_room', methods: ['POST'])]
@@ -215,8 +247,16 @@ class ApiDashboardController extends AbstractController
         $room->setPlan($user[0]->getPlan());
         $this->entityManager->persist($room);
         $this->entityManager->flush();
-        return $this->json([
+        $response = $this->json([
             'message' => 'room created',
         ], Response::HTTP_CREATED);
+
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'POST');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+        return $response;
     }
 }
