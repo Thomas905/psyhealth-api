@@ -3,6 +3,7 @@
 namespace App\Controller\API;
 
 use App\Entity\Question;
+use App\Entity\Reply;
 use App\Entity\Room;
 use App\Repository\PlanRepository;
 use App\Repository\QuestionRepository;
@@ -153,15 +154,16 @@ class ApiDashboardController extends AbstractController
         }
         $jwtPayload = json_decode($tokenPayload);
         $user = $this->userRepository->findBy(['username' => $jwtPayload->username]);
-        $reply = $this->replyRepository->findBy(['person' => $user, 'Question' => $question]);
-        foreach ($reply as $r) {
-            $jsonData = $request->getContent();
-            $data = json_decode($jsonData, true);
-            $description = $data['description'];
-            $r->setDescription($description);
-            $this->entityManager->persist($r);
-            $this->entityManager->flush();
-        }
+        $reply = new Reply();
+        $jsonData = $request->getContent();
+        $data = json_decode($jsonData, true);
+        $description = $data['description'];
+        $reply->setDescription($description);
+        $reply->setPerson($user[0]);
+        $reply->setQuestion($question);
+        $reply->setMonthCount(1);
+        $this->entityManager->persist($reply);
+        $this->entityManager->flush();
 
         $response = $this->json($serializer->normalize($reply, null, [
             AbstractNormalizer::ATTRIBUTES => [
@@ -205,6 +207,10 @@ class ApiDashboardController extends AbstractController
                         'id',
                         'description',
                         'replies' => [
+                            'person' => [
+                                'id',
+                                'username',
+                            ],
                             'description',
                             'monthCount',
                         ]
