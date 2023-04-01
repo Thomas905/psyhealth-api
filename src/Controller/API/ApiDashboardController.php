@@ -156,8 +156,45 @@ class ApiDashboardController extends AbstractController
         ]));
     }
 
-    #[Route('/room/{id}/questions', name: 'room_question', methods: ['GET'])]
-    public function roomQuestion(Room $room, SerializerInterface $serializer): JsonResponse
+    #[Route('/room/questions', name: 'room_question', methods: ['GET'])]
+    public function roomQuestion(SerializerInterface $serializer): JsonResponse
+    {
+        $jwtToken = $this->requestStack->getCurrentRequest()->headers->get('Authorization');
+        $tokenParts = explode(".", $jwtToken);
+        $tokenHeader = base64_decode($tokenParts[0]);
+        $tokenPayload = base64_decode($tokenParts[1]);
+        $jwtHeader = json_decode($tokenHeader);
+        if ($jwtHeader == null) {
+            return $this->json([
+                'message' => 'missing credentials',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+        $jwtPayload = json_decode($tokenPayload);
+        $user = $this->userRepository->findOneBy(['username' => $jwtPayload->username]);
+        $room = $this->roomRepository->findOneBy(['id' => $user->getRoom()->getId()]);
+        return $this->json($serializer->normalize($room, null, [
+            AbstractNormalizer::ATTRIBUTES => [
+                'id',
+                'name',
+                'plan' => [
+                    'id',
+                    'name',
+                    'month',
+                    'question' => [
+                        'id',
+                        'description',
+                        'replies' => [
+                            'description',
+                            'monthCount',
+                        ]
+                    ]
+                ],
+            ],
+        ]));
+    }
+
+    #[Route('/create-room', name: 'create_room', methods: ['POST'])]
+    public function createRoom(): JsonResponse
     {
         $jwtToken = $this->requestStack->getCurrentRequest()->headers->get('Authorization');
         $tokenParts = explode(".", $jwtToken);
@@ -171,25 +208,15 @@ class ApiDashboardController extends AbstractController
         }
         $jwtPayload = json_decode($tokenPayload);
         $user = $this->userRepository->findBy(['username' => $jwtPayload->username]);
-        $roomquestion = $this->userRepository->findBy(['room' => $room]);
-        return $this->json($serializer->normalize($roomquestion, null, [
-            AbstractNormalizer::ATTRIBUTES => [
-                'id',
-                'hasReplied',
-                'plan' => [
-                    'id',
-                    'name',
-                    'month',
-                    'question' => [
-                        'id',
-                        'description',
-                        'replies' => [
-                            'description',
-                            'monthCount',
-                        ]
-                    ]
-                ]
-            ],
-        ]));
+
+        $room = new Room();
+        $room->setName(uniqid());
+        $room->addUser($user[0]);
+        $room->setPlan($user[0]->getPlan());
+        $this->entityManager->persist($room);
+        $this->entityManager->flush();
+        return $this->json([
+            'message' => 'room created',
+        ], Response::HTTP_CREATED);
     }
 }

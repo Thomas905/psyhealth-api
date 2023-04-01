@@ -21,6 +21,10 @@ class Room
     #[ORM\OneToMany(mappedBy: 'room', targetEntity: User::class)]
     private Collection $users;
 
+    #[ORM\ManyToOne(inversedBy: 'rooms')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Plan $plan = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -69,6 +73,18 @@ class Room
                 $user->setRoom(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPlan(): ?Plan
+    {
+        return $this->plan;
+    }
+
+    public function setPlan(?Plan $plan): self
+    {
+        $this->plan = $plan;
 
         return $this;
     }

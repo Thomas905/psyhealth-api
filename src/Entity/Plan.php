@@ -27,10 +27,14 @@ class Plan
     #[ORM\OneToMany(mappedBy: 'plan', targetEntity: User::class)]
     private Collection $user;
 
+    #[ORM\OneToMany(mappedBy: 'plan', targetEntity: Room::class)]
+    private Collection $rooms;
+
     public function __construct()
     {
         $this->question = new ArrayCollection();
         $this->user = new ArrayCollection();
+        $this->rooms = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -110,6 +114,36 @@ class Plan
             // set the owning side to null (unless already changed)
             if ($user->getPlan() === $this) {
                 $user->setPlan(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Room>
+     */
+    public function getRooms(): Collection
+    {
+        return $this->rooms;
+    }
+
+    public function addRoom(Room $room): self
+    {
+        if (!$this->rooms->contains($room)) {
+            $this->rooms->add($room);
+            $room->setPlan($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRoom(Room $room): self
+    {
+        if ($this->rooms->removeElement($room)) {
+            // set the owning side to null (unless already changed)
+            if ($room->getPlan() === $this) {
+                $room->setPlan(null);
             }
         }
 
