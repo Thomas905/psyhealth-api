@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
+
 class ApiLoginController extends AbstractController
 {
     private JWTTokenManagerInterface $jwtManager;
@@ -22,18 +23,16 @@ class ApiLoginController extends AbstractController
     public function index(#[CurrentUser] ?User $user): Response
     {
         if (null === $user) {
-            header("Content-Type: application/json");
-            header("Access-Control-Allow-Origin: *");
+            header("Content-Type: application/multipart");
             header("Access-Control-Allow-Methods: POST");
-            header("Access-Control-Allow-Headers: Content-Type, Authorization");
+            header("Access-Control-Allow-Headers: Content-Type");
             return $this->json([
                 'message' => 'missing credentials',
             ], Response::HTTP_UNAUTHORIZED);
         }
-        header("Content-Type: application/json");
-        header("Access-Control-Allow-Origin: *");
+        header("Content-Type: application/multipart");
         header("Access-Control-Allow-Methods: POST");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Headers: Content-Type");
         return $this->json([
             'user' => $user->getId(),
             'token' => $this->jwtManager->create($user),
