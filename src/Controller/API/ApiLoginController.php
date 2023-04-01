@@ -22,35 +22,14 @@ class ApiLoginController extends AbstractController
     public function index(#[CurrentUser] ?User $user): Response
     {
         if (null === $user) {
-            $response = new Response();
-            $response->setContent(json_encode([
+            return $this->json([
                 'message' => 'missing credentials',
-            ]));
-            header("Content-Type: application/json");
-            header("Access-Control-Allow-Origin: *");
-            header("Access-Control-Allow-Methods: POST");
-            header("Access-Control-Allow-Headers: Content-Type, Authorization");
-            $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
-            $response->headers->set('Content-Type', 'application/json');
-            $response->headers->set('Access-Control-Allow-Origin', '*');
-            $response->headers->set('Access-Control-Allow-Methods', 'POST');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-            return $response;
+            ], Response::HTTP_UNAUTHORIZED);
         }
-        header("Content-Type: application/json");
-        header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Methods: POST");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization");
-        $response = new Response();
-        $response->setContent(json_encode([
+
+        return $this->json([
             'user' => $user->getId(),
             'token' => $this->jwtManager->create($user),
-        ]));
-        $response->setStatusCode(Response::HTTP_OK);
-        $response->headers->set('Content-Type', 'application/json');
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'POST');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        return $response;
+        ]);
     }
 }
