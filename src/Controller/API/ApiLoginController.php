@@ -22,11 +22,18 @@ class ApiLoginController extends AbstractController
     public function index(#[CurrentUser] ?User $user): Response
     {
         if (null === $user) {
+            header("Content-Type: application/json");
+            header("Access-Control-Allow-Origin: *");
+            header("Access-Control-Allow-Methods: POST");
+            header("Access-Control-Allow-Headers: Content-Type, Authorization");
             return $this->json([
                 'message' => 'missing credentials',
             ], Response::HTTP_UNAUTHORIZED);
         }
-
+        header("Content-Type: application/json");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: POST");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
         return $this->json([
             'user' => $user->getId(),
             'token' => $this->jwtManager->create($user),
